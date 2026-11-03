@@ -370,3 +370,15 @@ img { max-width: 100%; display: block; }
     .project-gallery { grid-template-columns: 1fr; }
     .gallery-item img { height: 140px; }
 }
+/* =========================================
+   Chart Wrapper Fix (Important!)
+   ========================================= */
+.chart-wrapper {
+    width: 100%;
+    height: 100%; /* inherits from parent div */
+    position: relative;
+}
+.chart-wrapper canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
