@@ -7,14 +7,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Markazi+Text:wght@400..700&family=Vazirmatn:wght@100..900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-<!-- اصلاح شد: نسخه پایدارتر 5.15.4 برای حذف خطاهای کنسول -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <link rel="stylesheet" href="styles.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-
-<div class="grain" aria-hidden="true"></div>
 
 <!-- لایت‌باکس -->
 <div class="lightbox" id="lightbox">
@@ -56,7 +53,7 @@
       </ul>
       <div class="board__cta">
         <a class="btn btn--solid" href="#dashboard">ورود به داشبورد تحلیلی <span>←</span></a>
-        <a class="btn btn--line" href="tel:+989030525401" dir="ltr">۰۹۰۳ ۰۵ ۵۴۰۱</a>
+        <a class="btn btn--line" href="tel:+989103878714" dir="ltr">۰۹۱۰ ۳۸۷ ۸۷۱۴</a>
       </div>
     </div>
     <aside class="panel panel--live">
@@ -91,6 +88,7 @@
         <div><dt>عنوان شغلی</dt><dd>سرپرست برنامه‌ریزی و کنترل پروژه</dd></div>
         <div><dt>محل فعالیت</dt><dd>بوشهر، سیراف</dd></div>
         <div><dt>ایمیل</dt><dd><span dir="ltr">rasoolsalahshouri728@gmail.com</span></dd></div>
+        <div><dt>تماس</dt><dd><span dir="ltr">۰۹۱۰ ۳۸۷ ۸۷۱۴</span></dd></div>
       </dl>
     </div>
     <div class="about__body">
@@ -132,19 +130,21 @@
         <div class="kpi"><span class="kpi__label">پیشرفت فیزیکی</span><b class="kpi__val">۶۵٪</b></div>
         <div class="kpi"><span class="kpi__label">SPI</span><b class="kpi__val">۱.۰۲</b></div>
         <div class="kpi"><span class="kpi__label">CPI</span><b class="kpi__val">۰.۹۸</b></div>
-        <div class="kpi kpi--accent"><span class="kpi__label">VAC</span><b class="kpi__val">+۱۲۰ م.ر</b></div>
+        <div class="kpi kpi--accent"><span class="kpi__label">VAC</span><b class="kpi__val">+۱۲ م.ر</b></div>
     </div>
 
     <div class="grid2">
       <article class="card card--wide">
         <div class="card__hd"><h3>منحنی S — برنامه مصوب، عملکرد و هزینه</h3></div>
-        <!-- اصلاح شد: div به canvas تبدیل شد -->
-        <canvas id="chart-s" style="height: 300px; width: 100%;"></canvas>
+        <div class="chart-wrapper" style="height: 300px; position: relative;">
+            <canvas id="chart-s"></canvas>
+        </div>
       </article>
       <article class="card">
         <div class="card__hd"><h3>ترکیب پیشرفت بر پایه فازها</h3></div>
-        <!-- اصلاح شد: div به canvas تبدیل شد -->
-        <canvas id="chart-donut" style="height: 300px; width: 100%;"></canvas>
+        <div class="chart-wrapper" style="height: 300px; position: relative;">
+            <canvas id="chart-donut"></canvas>
+        </div>
       </article>
     </div>
 
@@ -204,8 +204,9 @@
       </div>
 
       <div class="grid2" style="margin-top: 24px; display: none;" id="adjChartSection">
-        <!-- اصلاح شد: div به canvas تبدیل شد -->
-        <canvas id="adjChart" style="height: 300px; width: 100%; background: #1e1e1e; border-radius: 8px; padding: 10px;"></canvas>
+        <div class="chart-wrapper" style="height: 300px; position: relative; background: #1e1e1e; border-radius: 8px; padding: 10px;">
+            <canvas id="adjChart"></canvas>
+        </div>
         
         <div class="card" style="background: rgba(255,107,0,0.05); border: 1px dashed rgba(255,107,0,0.3); padding: 20px; border-radius: 8px; display: flex; flex-direction: column; justify-content: center;">
           <h4 style="color: #ffb700; margin-top: 0; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
@@ -299,13 +300,21 @@
         <div class="tl__body">
           <h3>سرپرست واحد برنامه‌ریزی و کنترل پروژه</h3>
           <p class="tl__org">شرکت توسعه پالایشی پیشگامان سیراف | بوشهر</p>
+          <ul>
+             <li>مدیریت بودجه ۲۲,۵۰۰ میلیارد ریالی</li>
+             <li>تحلیل EVM و کنترل تأخیرات</li>
+          </ul>
         </div>
       </li>
       <li class="tl__item">
-        <div class="tl__yr"><b>۱۳۷</b><span>تا ۱۴۲</span></div>
+        <div class="tl__yr"><b>۱۳۷</b><span>تا ۱۴۰۲</span></div>
         <div class="tl__body">
           <h3>کارشناس ارشد کنترل پروژه</h3>
           <p class="tl__org">اکسیر صنعت (پروژه تمبک)</p>
+          <ul>
+             <li>تحویل قطعی ۴ بسته قراردادی</li>
+             <li>کنترل پایپینگ و سیویل دریایی</li>
+          </ul>
         </div>
       </li>
     </ol>
@@ -319,7 +328,7 @@
       <h2 class="h2"><span>یک پروژه دارید؟</span></h2>
       <ul class="cbox">
         <li><span class="cbox__k">ایمیل</span><b dir="ltr">rasoolsalahshouri728@gmail.com</b></li>
-        <li><span class="cbox__k">تماس</span><b dir="ltr">۰۹۰۳ ۰۵۲ ۵۴۱</b></li>
+        <li><span class="cbox__k">تماس</span><b dir="ltr">۰۹۱۰ ۳۸۷ ۸۷۱۴</b></li>
       </ul>
     </div>
   </div>
