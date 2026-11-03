@@ -1,0 +1,329 @@
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // ==========================================
+    // 1. Lightbox Functionality
+    // ==========================================
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const lightboxCaption = document.getElementById('lightboxCaption');
+    const closeBtn = document.getElementById('lightboxClose');
+    const galleryImages = document.querySelectorAll('.gallery-trigger');
+
+    if(galleryImages.length > 0) {
+        galleryImages.forEach(img => {
+            img.addEventListener('click', function() {
+                lightboxImg.src = this.src;
+                lightboxCaption.textContent = this.alt || this.title;
+                lightbox.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+        });
+    }
+
+    function closeLightbox() {
+        lightbox.classList.remove('active');
+        document.body.style.overflow = '';
+        setTimeout(() => { lightboxImg.src = ''; }, 300);
+    }
+
+    if(closeBtn) closeBtn.addEventListener('click', closeLightbox);
+    if(lightbox) {
+        lightbox.addEventListener('click', function(e) {
+            if (e.target === lightbox) closeLightbox();
+        });
+    }
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && lightbox && lightbox.classList.contains('active')) closeLightbox();
+    });
+
+    // ==========================================
+    // 2. Mobile Menu Toggle
+    // ==========================================
+    const burger = document.getElementById('burger');
+    const menu = document.getElementById('menu');
+    if(burger && menu) {
+        burger.addEventListener('click', () => {
+            menu.classList.toggle('active');
+        });
+    }
+
+    // ==========================================
+    // 3. Live Clock
+    // ==========================================
+    function updateClock() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const dateStr = now.toLocaleDateString('fa-IR');
+        
+        const clk = document.getElementById('clk');
+        const clkDate = document.getElementById('clkDate');
+        if(clk) clk.textContent = `${hours}:${minutes}:${seconds}`;
+        if(clkDate) clkDate.textContent = dateStr;
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // ==========================================
+    // 4. Safe Chart Initialization (Main Dashboard)
+    // ==========================================
+    // چک می‌کند آیا عنصر Canvas وجود دارد تا خطا ندهد
+    const chartSContainer = document.getElementById('chart-s');
+    if(chartSContainer && chartSContainer.tagName.toLowerCase() === 'canvas') {
+        try {
+            new Chart(chartSContainer.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ['ماه ۱', 'ماه ۲', 'ماه ۳', 'ماه ۴', 'ماه ۵', 'ماه ۶'],
+                    datasets: [
+                        { label: 'PV', data: [10, 25, 40, 55, 70, 85], borderColor: '#ff6b00', tension: 0.4, backgroundColor: 'rgba(255,107,0,0.1)', fill: true },
+                        { label: 'EV', data: [8, 22, 38, 58, 72, 88], borderColor: '#22c55e', tension: 0.4, backgroundColor: 'rgba(34,197,94,0.1)', fill: true }
+                    ]
+                },
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    plugins: { legend: { labels: { color: '#94a3b8' } } }, 
+                    scales: { 
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }, 
+                        x: { ticks: { color: '#94a3b8' }, grid: { display: false } } 
+                    } 
+                }
+            });
+        } catch(err) { console.warn("Chart S Error:", err); }
+    }
+
+    const chartDonutContainer = document.getElementById('chart-donut');
+    if(chartDonutContainer && chartDonutContainer.tagName.toLowerCase() === 'canvas') {
+        try {
+            new Chart(chartDonutContainer.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['سیویل', 'مکانیکال', 'پایپینگ', 'برق'],
+                    datasets: [{ data: [30, 25, 35, 10], backgroundColor: ['#ff6b00', '#ffb700', '#22c55e', '#3b82f6'], borderWidth: 0 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8' } } } }
+            });
+        } catch(err) { console.warn("Chart Donut Error:", err); }
+    }
+
+    // ==========================================
+    // 5. SMART ADJUSTMENT CALCULATOR (Robust Version)
+    // ==========================================
+    const ADJ_SHEET_ID = '1JSejA-6Re0AeyQAu6vg_uw-PqhxOLltM6HNMkfQFnDQ';
+    const ADJ_SHEET_URL = `https://docs.google.com/spreadsheets/d/${ADJ_SHEET_ID}/gviz/tq?tqx=out:json`;
+
+    let adjSheetData = [];
+    let adjChartInstance = null;
+
+    // داده‌های نمونه (Fallback) - دقیقاً مطابق ساختار شیت شما
+    const dummyData = [
+        {
+            list: 'ابنیه', workYear: '1404', workQuarter: 'اول',
+            baseYear: '99', baseQuarter: 'اول', chapterNum: '29', chapterDesc: 'کارهای دستمزدی',
+            B: 1823.6, A: 11216.8, adjCoeff: 6.151, workAmount: 1000000000, adjRial: 5151000000
+        },
+        {
+            list: 'ابنیه', workYear: '1404', workQuarter: 'دوم',
+            baseYear: '99', baseQuarter: 'اول', chapterNum: '12', chapterDesc: 'عملیات خاکی',
+            B: 2100.5, A: 9800.4, adjCoeff: 4.665, workAmount: 500000000, adjRial: 1832500000
+        }
+    ];
+
+    async function fetchAdjData() {
+        console.log("Attempting to fetch live data...");
+        try {
+            const response = await fetch(ADJ_SHEET_URL);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            
+            const text = await response.text();
+            // حذف پیشوند و پسوند اضافی گوگل
+            const jsonString = text.substring(47).slice(0, -2);
+            const json = JSON.parse(jsonString);
+            
+            if (!json.table.rows || json.table.rows.length === 0) {
+                 throw new Error("No rows found in sheet");
+            }
+
+            adjSheetData = json.table.rows.map(row => {
+                const c = row.c;
+                return {
+                    list: c[1]?.v || '',           // B: فهرست
+                    workYear: c[2]?.v || '',       // C: سال کارکرد
+                    workQuarter: c[3]?.v || '',    // D: سه ماهه کارکرد
+                    baseYear: c[4]?.v || '',       // E: سال مبنا
+                    baseQuarter: c[5]?.v || '',    // F: سه ماهه مبنا
+                    chapterNum: c[8]?.v || '',     // I: شماره فصل
+                    chapterDesc: c[9]?.v || '',    // J: شرح فصل
+                    B: parseFloat(c[10]?.v) || 0,  // K: شاخص مبنا
+                    A: parseFloat(c[11]?.v) || 0,  // L: شاخص کارکرد
+                    adjCoeff: parseFloat(c[12]?.v) || 0,   // M: ضریب تعدیل
+                    workAmount: parseFloat(c[13]?.v) || 0, // N: مبلغ کارکرد
+                    adjRial: parseFloat(c[14]?.v) || 0     // O: مبلغ تعدیل
+                };
+            }).filter(item => item.list !== ''); // حذف ردیف‌های خالی
+
+            console.log("Live data loaded successfully.");
+            initCalculator(true); // true یعنی دیتای لایو
+
+        } catch (error) {
+            console.warn("Connection failed or blocked by browser security (Local File). Using Dummy Data.", error.message);
+            adjSheetData = dummyData;
+            initCalculator(false); // false یعنی دیتای نمونه
+        }
+    }
+
+    function initCalculator(isLive) {
+        populateAdjDropdowns();
+        
+        const loadingEl = document.getElementById('adjLoading');
+        if(loadingEl) {
+            if(!isLive) {
+                loadingEl.innerHTML = '<span style="color:#ffb700; font-size:0.9rem;">⚠️ حالت آفلاین (نمونه): برای دیدن داده‌های واقعی، فایل را روی هاست آپلود کنید.</span>';
+                loadingEl.style.display = 'block';
+            } else {
+                loadingEl.style.display = 'none';
+            }
+        }
+
+        const kpisSection = document.getElementById('adjKpis');
+        const chartSection = document.getElementById('adjChartSection');
+        
+        if(kpisSection) kpisSection.style.display = 'grid';
+        if(chartSection) chartSection.style.display = 'grid';
+        
+        calculateAdjustment();
+    }
+
+    function populateAdjDropdowns() {
+        const uniqueLists = [...new Set(adjSheetData.map(d => d.list).filter(Boolean))];
+        const uniqueWork = [...new Set(adjSheetData.map(d => `${d.workYear} ${d.workQuarter}`).filter(Boolean))];
+        const uniqueBase = [...new Set(adjSheetData.map(d => `${d.baseYear} ${d.baseQuarter}`).filter(Boolean))];
+        const uniqueChapters = [...new Set(adjSheetData.map(d => `فصل ${d.chapterNum}: ${d.chapterDesc}`).filter(Boolean))];
+
+        fillAdjSelect('adjFilterList', uniqueLists);
+        fillAdjSelect('adjFilterWork', uniqueWork);
+        fillAdjSelect('adjFilterBase', uniqueBase);
+        fillAdjSelect('adjFilterChapter', uniqueChapters);
+    }
+
+    function fillAdjSelect(elementId, options) {
+        const select = document.getElementById(elementId);
+        if(!select) return;
+        select.innerHTML = '<option value="all">همه موارد</option>';
+        options.forEach(opt => {
+            const option = document.createElement('option');
+            option.value = opt;
+            option.textContent = opt;
+            select.appendChild(option);
+        });
+    }
+
+    function calculateAdjustment() {
+        const listVal = document.getElementById('adjFilterList')?.value || 'all';
+        const workVal = document.getElementById('adjFilterWork')?.value || 'all';
+        const baseVal = document.getElementById('adjFilterBase')?.value || 'all';
+        const chapterVal = document.getElementById('adjFilterChapter')?.value || 'all';
+
+        const filteredData = adjSheetData.filter(row => {
+            const matchList = listVal === 'all' || row.list === listVal;
+            const matchWork = workVal === 'all' || `${row.workYear} ${row.workQuarter}` === workVal;
+            const matchBase = baseVal === 'all' || `${row.baseYear} ${row.baseQuarter}` === baseVal;
+            const matchChapter = chapterVal === 'all' || `فصل ${row.chapterNum}: ${row.chapterDesc}` === chapterVal;
+            return matchList && matchWork && matchBase && matchChapter;
+        });
+
+        if (filteredData.length > 0) {
+            const data = filteredData[0];
+            const percent = data.adjCoeff > 0 ? (data.adjCoeff - 1) * 100 : 0;
+
+            setText('adjValB', data.B.toLocaleString('fa-IR'));
+            setText('adjValA', data.A.toLocaleString('fa-IR'));
+            setText('adjValCoeff', data.adjCoeff.toFixed(3).toLocaleString('fa-IR'));
+            setText('adjValPercent', percent.toFixed(1).toLocaleString('fa-IR') + '٪');
+            setText('adjValAmount', data.workAmount > 0 ? data.workAmount.toLocaleString('fa-IR') + ' ریال' : '-');
+            setText('adjValRial', data.adjRial > 0 ? data.adjRial.toLocaleString('fa-IR') + ' ریال' : '-');
+
+            const analysisEl = document.getElementById('adjAnalysis');
+            if(analysisEl) {
+                analysisEl.innerHTML = `
+                    بر اساس انتخاب شما، شاخص <strong style="color:#ffb700">${data.chapterDesc}</strong> در دوره کارکرد <strong>${data.workYear} ${data.workQuarter}</strong> 
+                    نسبت به مبنای <strong>${data.baseYear} ${data.baseQuarter}</strong>، ضریب تعدیل <strong style="color:#ff6b00">${data.adjCoeff.toFixed(3).toLocaleString('fa-IR')}</strong> دارد.
+                    <br><br>💰 <strong>تحلیل ریالی:</strong> مبلغ کارکرد <strong>${data.workAmount.toLocaleString('fa-IR')}</strong> ریال و مبلغ تعدیل <strong>${data.adjRial.toLocaleString('fa-IR')}</strong> ریال محاسبه شده است.
+                `;
+            }
+
+            updateAdjChart(data.B, data.A);
+        } else {
+            clearCalcUI();
+            const analysisEl = document.getElementById('adjAnalysis');
+            if(analysisEl) analysisEl.innerText = 'داده‌ای یافت نشد. لطفاً فیلترها را تغییر دهید.';
+        }
+    }
+
+    function setText(id, val) {
+        const el = document.getElementById(id);
+        if(el) el.innerText = val;
+    }
+
+    function clearCalcUI() {
+        ['adjValB','adjValA','adjValCoeff','adjValPercent','adjValAmount','adjValRial'].forEach(id => {
+            setText(id, '-');
+        });
+    }
+
+    function updateAdjChart(b, a) {
+        const canvasEl = document.getElementById('adjChart');
+        if (!canvasEl || canvasEl.tagName.toLowerCase() !== 'canvas') {
+            console.error("Canvas element #adjChart not found or invalid.");
+            return;
+        }
+
+        const ctx = canvasEl.getContext('2d');
+        if (adjChartInstance) adjChartInstance.destroy();
+
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.borderColor = 'rgba(255,255,255,0.1)';
+        Chart.defaults.font.family = 'Vazirmatn';
+
+        adjChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['شاخص مبنا (B)', 'شاخص کارکرد (A)'],
+                datasets: [{
+                    label: 'مقدار شاخص',
+                    data: [b, a],
+                    backgroundColor: ['rgba(255, 255, 255, 0.2)', '#ff6b00'],
+                    borderRadius: 6,
+                    barThickness: 50
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1a1a1a',
+                        titleColor: '#ffb700',
+                        bodyColor: '#fff',
+                        borderColor: 'rgba(255,107,0,0.3)',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y.toLocaleString('fa-IR');
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    x: { grid: { display: false }, ticks: { font: { weight: 'bold' } } }
+                }
+            }
+        });
+    }
+
+    // شروع برنامه
+    fetchAdjData();
+});

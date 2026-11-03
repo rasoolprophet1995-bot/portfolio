@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>رسول سلحشوری | سرپرست برنامه‌ریزی و کنترل پروژه</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Markazi+Text:wght@400..700&family=Vazirmatn:wght@100..900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<!-- اصلاح شد: نسخه پایدارتر 5.15.4 برای حذف خطاهای کنسول -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+
+<!-- لایت‌باکس -->
+<div class="lightbox" id="lightbox">
+    <span class="lightbox-close" id="lightboxClose">&times;</span>
+    <img src="" alt="نمایش بزرگ" class="lightbox-img" id="lightboxImg">
+    <div class="lightbox-caption" id="lightboxCaption"></div>
+</div>
+
+<header class="nav" id="nav">
+  <div class="wrap nav__in">
+    <a class="brand brand__logo" href="#home" aria-label="صفحه نخست">
+      <div class="logo-mark">RS</div>
+      <span class="brand__txt"><b>رسول سلحشوری</b><i>Planning &amp; Project Control</i></span>
+    </a>
+    <nav class="menu" id="menu" aria-label="فهرست بخش‌ها">
+      <a href="#about">درباره</a><a href="#dashboard">داشبورد تحلیلی</a>
+      <a href="#projects">پروژه‌ها</a><a href="#experience">سوابق</a>
+      <a href="#contact" class="menu__cta">تماس</a>
+    </nav>
+    <button class="burger" id="burger" aria-label="منو"><span></span><span></span></button>
+  </div>
+</header>
+
+<main>
+
+<section class="board" id="home">
+  <div class="wrap board__in">
+    <div class="board__lead">
+      <p class="eyebrow"><span class="led"></span> سامانه کنترل پروژه · وضعیت: <b>زنده</b></p>
+      <h1 class="display">رسول سلحشوری</h1>
+      <p class="role">سرپرست واحد برنامه‌ریزی و کنترل پروژه</p>
+      <p class="lede">
+        هشت سال تجربه در مدیریت زمان و هزینه پروژه‌های کلان نفت، گاز و پتروشیمی جنوب کشور؛
+        از <b>بندر خدماتی تمبک</b> تا <b>سایت توسعه پالایشی پیشگامان سیراف</b>.
+      </p>
+      <ul class="chips">
+        <li>Primavera P6</li><li>EVM</li><li>S-Curve</li>
+        <li>Delay Analysis</li><li>Power BI</li>
+      </ul>
+      <div class="board__cta">
+        <a class="btn btn--solid" href="#dashboard">ورود به داشبورد تحلیلی <span>←</span></a>
+        <a class="btn btn--line" href="tel:+989030525401" dir="ltr">۰۹۰۳ ۰۵ ۵۴۰۱</a>
+      </div>
+    </div>
+    <aside class="panel panel--live">
+      <header class="panel__hd">
+        <span class="panel__ttl">LIVE STATUS</span>
+        <span class="panel__clock"><b id="clk">--:--:--</b> <i id="clkDate">—</i></span>
+      </header>
+      <footer class="panel__ft">
+        <span>بودجه تحت پایش</span><b>۲۲,۵۰۰ میلیارد ریال</b>
+      </footer>
+    </aside>
+  </div>
+</section>
+
+<section class="figures">
+  <div class="wrap figures__in">
+    <div class="fig"><b class="fig__n">۸</b><span>سال سابقه</span></div>
+    <div class="fig"><b class="fig__n">۱۸+</b><span>قرارداد</span></div>
+    <div class="fig"><b class="fig__n">۲۳,۳۵۶</b><span>میلیارد ریال</span></div>
+    <div class="fig fig--accent"><b class="fig__n">۹۶٪</b><span>رضایت کارفرما</span></div>
+  </div>
+</section>
+
+<section class="sec sec--paper about" id="about">
+  <div class="wrap about__in">
+    <div class="about__side">
+      <div class="profile-img-container">
+        <img src="pic/profile/profile.jpg" alt="رسول سلحشوری" class="profile-img">
+      </div>
+      <dl class="idcard">
+        <div><dt>نام</dt><dd>رسول سلحشوری</dd></div>
+        <div><dt>عنوان شغلی</dt><dd>سرپرست برنامه‌ریزی و کنترل پروژه</dd></div>
+        <div><dt>محل فعالیت</dt><dd>بوشهر، سیراف</dd></div>
+        <div><dt>ایمیل</dt><dd><span dir="ltr">rasoolsalahshouri728@gmail.com</span></dd></div>
+      </dl>
+    </div>
+    <div class="about__body">
+      <p class="drop">
+        مسیر حرفه‌ای من از دلِ کارگاه‌های بندری و سایت‌های صنعتی جنوب کشور گذشته است. 
+        تخصص اصلی‌ام پی‌ریزی <b>خط پایهٔ مصوب (Baseline)</b> واقع‌بینانه و سپس پایش بی‌رحمانهٔ آن است.
+      </p>
+      <blockquote class="pull">
+        <span>«برنامه‌ای که قابل پایش نباشد، فقط یک جدول زیباست؛</span>
+        <span>و گزارشی که تصمیم نسازد، فقط کاغذ باطله است.»</span>
+      </blockquote>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== داشبورد و ماشین حساب ==================== -->
+<section class="sec dash" id="dashboard" style="position: relative;">
+  <div class="dash-watermark"></div>
+  <div class="wrap" style="position: relative; z-index: 1;">
+    <header class="sechead sechead--row">
+      <div>
+        <span class="wbs">۳٫۰ — ANALYTICS BOARD</span>
+        <h2 class="h2"><span>داشبورد تحلیل عملکرد پروژه</span></h2>
+      </div>
+    </header>
+
+    <div class="projbar">
+      <div class="projbar__thumb">
+        <img src="pic/pishgaman/pishgaman.jpg" alt="پروژه" width="110" height="110" style="object-fit: cover; border-radius: 8px;">
+      </div>
+      <div class="projbar__meta">
+        <span class="projbar__code">PRJ-COOLING-EPC</span>
+        <h3>احداث کولینگ تاور (EPC)</h3>
+        <p><i>کارفرما:</i> <b>توسعه پالایشی پیشگامان</b></p>
+      </div>
+    </div>
+
+    <div class="kpis">
+        <div class="kpi"><span class="kpi__label">پیشرفت فیزیکی</span><b class="kpi__val">۶۵٪</b></div>
+        <div class="kpi"><span class="kpi__label">SPI</span><b class="kpi__val">۱.۰۲</b></div>
+        <div class="kpi"><span class="kpi__label">CPI</span><b class="kpi__val">۰.۹۸</b></div>
+        <div class="kpi kpi--accent"><span class="kpi__label">VAC</span><b class="kpi__val">+۱۲۰ م.ر</b></div>
+    </div>
+
+    <div class="grid2">
+      <article class="card card--wide">
+        <div class="card__hd"><h3>منحنی S — برنامه مصوب، عملکرد و هزینه</h3></div>
+        <!-- اصلاح شد: div به canvas تبدیل شد -->
+        <canvas id="chart-s" style="height: 300px; width: 100%;"></canvas>
+      </article>
+      <article class="card">
+        <div class="card__hd"><h3>ترکیب پیشرفت بر پایه فازها</h3></div>
+        <!-- اصلاح شد: div به canvas تبدیل شد -->
+        <canvas id="chart-donut" style="height: 300px; width: 100%;"></canvas>
+      </article>
+    </div>
+
+    <!-- ماشین‌حساب هوشمند تعدیل -->
+    <article class="card card--full" style="margin-top: 2rem; border: 1px solid rgba(255,107,0,0.2); background: #1a1a1a;">
+      <div class="card__hd">
+        <h3><i class="fas fa-calculator" style="color: #ff6b00; margin-left: 8px;"></i> ماشین‌حساب هوشمند ضریب تعدیل</h3>
+        <span class="card__note">متصل زنده به گوگل شیت</span>
+      </div>
+      
+      <div class="calc-filters">
+        <div>
+          <label>۱. فهرست بها</label>
+          <select id="adjFilterList" class="calc-select"><option>در حال بارگذاری...</option></select>
+        </div>
+        <div>
+          <label>۲. دوره کارکرد</label>
+          <select id="adjFilterWork" class="calc-select"><option>در حال بارگذاری...</option></select>
+        </div>
+        <div>
+          <label>۳. دوره شاخص مبنا</label>
+          <select id="adjFilterBase" class="calc-select"><option>در حال بارگذاری...</option></select>
+        </div>
+        <div>
+          <label>۴. فصل / رشته</label>
+          <select id="adjFilterChapter" class="calc-select"><option>در حال بارگذاری...</option></select>
+        </div>
+      </div>
+
+      <div id="adjLoading" class="loading-msg">در حال دریافت داده‌ها از گوگل شیت...</div>
+
+      <div class="kpis" id="adjKpis" style="display: none; margin-top: 20px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));">
+        <div class="kpi">
+          <span class="kpi__label">شاخص مبنا (B)</span>
+          <b class="kpi__val" id="adjValB" style="color: #fff;">-</b>
+        </div>
+        <div class="kpi">
+          <span class="kpi__label">شاخص کارکرد (A)</span>
+          <b class="kpi__val" id="adjValA" style="color: #fff;">-</b>
+        </div>
+        <div class="kpi kpi--accent">
+          <span class="kpi__label">ضریب تعدیل (M)</span>
+          <b class="kpi__val" id="adjValCoeff">-</b>
+        </div>
+        <div class="kpi kpi--accent">
+          <span class="kpi__label">درصد تعدیل</span>
+          <b class="kpi__val" id="adjValPercent">-</b>
+        </div>
+        <div class="kpi">
+          <span class="kpi__label">مبلغ کارکرد (N)</span>
+          <b class="kpi__val" id="adjValAmount" style="color: #22c55e; font-size: 1.1rem;">-</b>
+        </div>
+        <div class="kpi kpi--accent">
+          <span class="kpi__label">مبلغ تعدیل (O)</span>
+          <b class="kpi__val" id="adjValRial" style="color: #ffb700; font-size: 1.1rem;">-</b>
+        </div>
+      </div>
+
+      <div class="grid2" style="margin-top: 24px; display: none;" id="adjChartSection">
+        <!-- اصلاح شد: div به canvas تبدیل شد -->
+        <canvas id="adjChart" style="height: 300px; width: 100%; background: #1e1e1e; border-radius: 8px; padding: 10px;"></canvas>
+        
+        <div class="card" style="background: rgba(255,107,0,0.05); border: 1px dashed rgba(255,107,0,0.3); padding: 20px; border-radius: 8px; display: flex; flex-direction: column; justify-content: center;">
+          <h4 style="color: #ffb700; margin-top: 0; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-chart-pie"></i> تحلیل کنترل پروژه:
+          </h4>
+          <p id="adjAnalysis" style="color: #ccc; line-height: 1.8; font-size: 0.95rem; margin: 0;">لطفاً فیلترها را انتخاب کنید.</p>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- پروژه‌ها -->
+<section class="sec cases" id="projects">
+  <div class="wrap">
+    <header class="sechead">
+      <span class="wbs">۴٫۰ — SELECTED WORK</span>
+      <h2 class="h2"><span>پروژه‌های برگزیده</span></h2>
+    </header>
+    <div class="stack">
+      <article class="scard">
+        <div class="scard__img kb">
+            <img src="pic/pishgaman/pishgaman.jpg" alt="پیشگامان سیراف" loading="lazy">
+            <span class="scard__tag">در حال اجرا</span>
+        </div>
+        <div class="scard__body">
+          <span class="scard__code">PRJ-PIS-2023</span>
+          <h3>توسعه پالایشی پیشگامان سیراف</h3>
+          <p>مدیریت کنترل پروژه برای فعالیت‌های سنگین صنعتی شامل پایپینگ، سیویل، استراکچر و تجهیزات مکانیکال.</p>
+          <div class="project-album">
+            <span class="album-title">📷 گالری تصاویر:</span>
+            <div class="project-gallery">
+              <div class="gallery-item">
+                <img src="pic/pishgaman/pile(1).jpg" alt="شمع‌کوبی" class="gallery-trigger">
+                <div class="gallery-caption">شمع‌کوبی</div>
+              </div>
+              <div class="gallery-item">
+                <img src="pic/pishgaman/str(1).jpg" alt="استراکچر" class="gallery-trigger">
+                <div class="gallery-caption">استراکچر</div>
+              </div>
+              <div class="gallery-item">
+                <img src="pic/pishgaman/cooling (1).jpg" alt="کولینگ" class="gallery-trigger">
+                <div class="gallery-caption">کولینگ تاور</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="scard">
+        <div class="scard__img kb">
+            <img src="pic/tombak/tombak.jpg" alt="بندر تمبک" loading="lazy">
+            <span class="scard__tag">تکمیل شده</span>
+        </div>
+        <div class="scard__body">
+          <span class="scard__code">PRJ-TMB-PORT</span>
+          <h3>بندر خدماتی و صادراتی تمبک</h3>
+          <p>اجرای ۴ بسته قراردادی شامل سیویل، پایپینگ و Loading Arm.</p>
+          <div class="project-album">
+            <span class="album-title">📷 گالری تصاویر:</span>
+            <div class="project-gallery">
+              <div class="gallery-item">
+                <img src="pic/tombak/pile(1).jpg" alt="شمع" class="gallery-trigger">
+                <div class="gallery-caption">شمع‌کوبی</div>
+              </div>
+              <div class="gallery-item">
+                <img src="pic/tombak/str(1).jpg" alt="استراکچر" class="gallery-trigger">
+                <div class="gallery-caption">استراکچر</div>
+              </div>
+              <div class="gallery-item">
+                <img src="pic/tombak/pip UG (1).jpg" alt="پایپینگ" class="gallery-trigger">
+                <div class="gallery-caption">پایپینگ UG</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="sec sec--paper exp" id="experience">
+  <div class="wrap">
+    <header class="sechead">
+      <span class="wbs">۵٫۰ — EXPERIENCE</span>
+      <h2 class="h2"><span>سوابق کاری</span></h2>
+    </header>
+    <ol class="tl">
+      <li class="tl__item">
+        <div class="tl__yr"><b>۱۴۲</b><span>تا اکنون</span></div>
+        <div class="tl__body">
+          <h3>سرپرست واحد برنامه‌ریزی و کنترل پروژه</h3>
+          <p class="tl__org">شرکت توسعه پالایشی پیشگامان سیراف | بوشهر</p>
+        </div>
+      </li>
+      <li class="tl__item">
+        <div class="tl__yr"><b>۱۳۷</b><span>تا ۱۴۲</span></div>
+        <div class="tl__body">
+          <h3>کارشناس ارشد کنترل پروژه</h3>
+          <p class="tl__org">اکسیر صنعت (پروژه تمبک)</p>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="sec contact" id="contact">
+  <div class="wrap contact__in">
+    <div class="contact__left">
+      <span class="wbs">۷٫۰ — CONTACT</span>
+      <h2 class="h2"><span>یک پروژه دارید؟</span></h2>
+      <ul class="cbox">
+        <li><span class="cbox__k">ایمیل</span><b dir="ltr">rasoolsalahshouri728@gmail.com</b></li>
+        <li><span class="cbox__k">تماس</span><b dir="ltr">۰۹۰۳ ۰۵۲ ۵۴۱</b></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot__in">
+    <div><b>رسول سلحشوری</b><span>۱۴۰۵</span></div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
