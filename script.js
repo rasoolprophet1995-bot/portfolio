@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     
     // ==========================================
-    // 1. Lightbox Functionality
+    // 1. UI Elements & Helpers
     // ==========================================
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightboxImg');
@@ -36,37 +36,28 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key === 'Escape' && lightbox && lightbox.classList.contains('active')) closeLightbox();
     });
 
-    // ==========================================
-    // 2. Mobile Menu Toggle
-    // ==========================================
     const burger = document.getElementById('burger');
     const menu = document.getElementById('menu');
     if(burger && menu) {
-        burger.addEventListener('click', () => {
-            menu.classList.toggle('active');
-        });
+        burger.addEventListener('click', () => menu.classList.toggle('active'));
     }
 
-    // ==========================================
-    // 3. Live Clock
-    // ==========================================
     function updateClock() {
         const now = new Date();
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const seconds = String(now.getSeconds()).padStart(2, '0');
-        const dateStr = now.toLocaleDateString('fa-IR');
-        
+        const h = String(now.getHours()).padStart(2, '0');
+        const m = String(now.getMinutes()).padStart(2, '0');
+        const s = String(now.getSeconds()).padStart(2, '0');
+        const d = now.toLocaleDateString('fa-IR');
         const clk = document.getElementById('clk');
         const clkDate = document.getElementById('clkDate');
-        if(clk) clk.textContent = `${hours}:${minutes}:${seconds}`;
-        if(clkDate) clkDate.textContent = dateStr;
+        if(clk) clk.textContent = `${h}:${m}:${s}`;
+        if(clkDate) clkDate.textContent = d;
     }
     updateClock();
     setInterval(updateClock, 1000);
 
     // ==========================================
-    // 4. Safe Chart Initialization (Main Dashboard)
+    // 2. Main Dashboard Charts (Static Demo)
     // ==========================================
     const chartSContainer = document.getElementById('chart-s');
     if(chartSContainer && chartSContainer.tagName.toLowerCase() === 'canvas') {
@@ -107,167 +98,153 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ==========================================
-    // 5. MULTI-SHEET ADJUSTMENT CALCULATOR
+    // 3. AUTOMATIC MULTI-SHEET CALCULATOR ENGINE
     // ==========================================
     const SHEET_ID = '1JSejA-6Re0AeyQAu6vg_uw-PqhxOLltM6HNMkfQFnDQ';
-    let availableSheets = []; // لیست نام شیت‌ها
-    let currentSheetData = []; // داده‌های شیت فعلی
+    
+    // لیست دقیق نام شیت‌ها برای اسکن خودکار
+    const TARGET_SHEETS = [
+        "ابنیه", "مکانیک", "برق", "مرمت", "راه", "راهداری", "تعمیر", 
+        "انتقال اب", "شبکه توزیع", "چاه", "زهکشی", "سد سازی", "تحت فشار", 
+        "فاضلاب", "توزیع اب روستایی", "قنات", "اب خیزداری", "خطوط زمینی", 
+        "خطوط هوایی", "پست های انتقال", "تعمیر شبکه فوق توزیع", "توزیع نیروی برق", 
+        "حفاری", "پسماند", "تاسیسات آب شرب", "تجهیزات آب و فاضلاب", 
+        "نگهداشت تجهیزات برقی فاضلاب", "نگهداری شبکه فاضلاب"
+    ];
+
+    let masterData = []; // اینجا همه داده‌ها جمع می‌شوند
     let adjChartInstance = null;
 
-    // تابع کمکی برای تبدیل نام فارسی شیت به URL Encoded
-    function encodeSheetName(name) {
-        return encodeURIComponent(name.trim());
-    }
-
-    // ۱. دریافت لیست شیت‌ها
-    async function fetchSheetNames() {
-        const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
-        try {
-            const response = await fetch(url);
-            const text = await response.text();
-            const jsonString = text.substring(47).slice(0, -2);
-            const json = JSON.parse(jsonString);
-            
-            // معمولاً gviz فقط یک شیت را برمی‌گرداند مگر اینکه مشخص شود.
-            // اما ما می‌دانیم شیت‌ها چه نام‌هایی دارند. 
-            // برای اطمینان، اگر API نتوانست همه را بگیرد، از لیست دستی استفاده می‌کنیم.
-            
-            // لیست دستی شیت‌ها طبق گفته کاربر (برای اطمینان از پوشش کامل)
-            const manualSheetList = [
-                "ابنیه", "مکانیک", "برق", "مرمت", "راه", "راهداری", "تعمیر", 
-                "انتقال اب", "شبکه توزیع", "چاه", "زهکشی", "سد سازی", "تحت فشار", 
-                "فاضلاب", "توزیع اب روستایی", "قنات", "اب خیزداری", "خطوط زمینی", 
-                "خطوط هوایی", "پست های انتقال", "تعمیر شبکه فوق توزیع", "توزیع نیروی برق", 
-                "حفاری", "پسماند", "تاسیسات آب شرب", "تجهیزات آب و فاضلاب", 
-                "نگهداشت تجهیزات برقی فاضلاب", "نگهداری شبکه فاضلاب"
-            ];
-
-            populateSheetDropdown(manualSheetList);
-            document.getElementById('adjLoading').innerText = "یک بخش تخصصی را انتخاب کنید.";
-
-        } catch (error) {
-            console.error("Error fetching sheets:", error);
-            // Fallback به لیست دستی در صورت خطا
-            const manualSheetList = ["ابنیه", "مکانیک", "برق"]; 
-            populateSheetDropdown(manualSheetList);
-        }
-    }
-
-    function populateSheetDropdown(sheets) {
-        const select = document.getElementById('adjFilterSheet');
-        select.innerHTML = '<option value="">-- انتخاب شیت --</option>';
-        sheets.forEach(sheet => {
-            const option = document.createElement('option');
-            option.value = sheet;
-            option.textContent = sheet;
-            select.appendChild(option);
-        });
-    }
-
-    // ۲. لود کردن داده‌های یک شیت خاص
-    window.loadSpecificSheet = async function() {
-        const selectedSheet = document.getElementById('adjFilterSheet').value;
-        if (!selectedSheet) return;
-
+    async function initCalculator() {
         const loadingEl = document.getElementById('adjLoading');
-        loadingEl.innerText = `در حال بارگذاری داده‌های "${selectedSheet}"...`;
+        if(!loadingEl) return;
+        
+        loadingEl.innerText = "در حال اسکن خودکار ۲۸ شیت تخصصی...";
         loadingEl.style.display = 'block';
         
-        // مخفی کردن KPIs و نمودار تا داده جدید بیاید
-        document.getElementById('adjKpis').style.display = 'none';
-        document.getElementById('adjChartSection').style.display = 'none';
+        masterData = []; // ریست کردن داده‌ها
+        
+        // حلقه روی تمام شیت‌ها
+        for (let sheetName of TARGET_SHEETS) {
+            try {
+                const encodedName = encodeURIComponent(sheetName.trim());
+                const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodedName}&tqx=out:json`;
+                
+                const response = await fetch(url);
+                if (!response.ok) continue; // اگر شیتی نبود، رد شو
+                
+                const text = await response.text();
+                // بررسی اینکه آیا پاسخ JSON معتبر است یا خیر (گاهی گوگل خطا می‌دهد)
+                if(text.includes("<html>") || !text.startsWith("/*")) continue;
 
-        const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeSheetName(selectedSheet)}&tqx=out:json`;
+                const jsonString = text.substring(47).slice(0, -2);
+                const json = JSON.parse(jsonString);
+                
+                if (json.table && json.table.rows) {
+                    const rows = json.table.rows.map(row => {
+                        const c = row.c;
+                        return {
+                            sheetName: sheetName, // ثبت نام شیت مبدأ
+                            list: c[1]?.v || '',           // B: فهرست
+                            workYear: c[2]?.v || '',       // C: سال کارکرد
+                            workQuarter: c[3]?.v || '',    // D: سه ماهه کارکرد
+                            baseYear: c[4]?.v || '',       // E: سال مبنا
+                            baseQuarter: c[5]?.v || '',    // F: سه ماهه مبنا
+                            chapterNum: c[8]?.v || '',     // I: شماره فصل
+                            chapterDesc: c[9]?.v || '',    // J: شرح فصل
+                            B: parseFloat(c[10]?.v) || 0,  // K: شاخص مبنا
+                            A: parseFloat(c[11]?.v) || 0,  // L: شاخص کارکرد
+                            adjCoeff: parseFloat(c[12]?.v) || 0,   // M: ضریب تعدیل
+                            workAmount: parseFloat(c[13]?.v) || 0, // N: مبلغ کارکرد
+                            adjRial: parseFloat(c[14]?.v) || 0     // O: مبلغ تعدیل
+                        };
+                    }).filter(item => item.list !== '' && item.B > 0); // فقط ردیف‌های معتبر
 
-        try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            
-            const text = await response.text();
-            const jsonString = text.substring(47).slice(0, -2);
-            const json = JSON.parse(jsonString);
-            
-            if (!json.table.rows || json.table.rows.length === 0) {
-                 throw new Error("ردیفی در این شیت یافت نشد.");
+                    masterData.push(...rows);
+                    console.log(`Sheet "${sheetName}": ${rows.length} valid rows found.`);
+                }
+            } catch (err) {
+                // نادیده گرفتن خطاهای جزئی هر شیت
+                continue;
             }
+        }
 
-            currentSheetData = json.table.rows.map(row => {
-                const c = row.c;
-                return {
-                    list: c[1]?.v || '',           // B: فهرست
-                    workYear: c[2]?.v || '',       // C: سال کارکرد
-                    workQuarter: c[3]?.v || '',    // D: سه ماهه کارکرد
-                    baseYear: c[4]?.v || '',       // E: سال مبنا
-                    baseQuarter: c[5]?.v || '',    // F: سه ماهه مبنا
-                    chapterNum: c[8]?.v || '',     // I: شماره فصل
-                    chapterDesc: c[9]?.v || '',    // J: شرح فصل
-                    B: parseFloat(c[10]?.v) || 0,  // K: شاخص مبنا
-                    A: parseFloat(c[11]?.v) || 0,  // L: شاخص کارکرد
-                    adjCoeff: parseFloat(c[12]?.v) || 0,   // M: ضریب تعدیل
-                    workAmount: parseFloat(c[13]?.v) || 0, // N: مبلغ کارکرد
-                    adjRial: parseFloat(c[14]?.v) || 0     // O: مبلغ تعدیل
-                };
-            }).filter(item => item.list !== ''); 
-
-            console.log(`Loaded ${currentSheetData.length} rows from sheet: ${selectedSheet}`);
-            
-            // پر کردن فیلترهای دیگر بر اساس داده‌های این شیت
-            populateSubFilters(currentSheetData);
-            
-            loadingEl.style.display = 'none';
-            document.getElementById('adjKpis').style.display = 'grid';
-            document.getElementById('adjChartSection').style.display = 'grid';
-            
-            calculateAdjustment();
-
-        } catch (error) {
-            console.error("Error loading specific sheet:", error);
-            loadingEl.innerHTML = `<span style="color:#ef4444">خطا در خواندن شیت "${selectedSheet}".<br>${error.message}</span>`;
+        console.log(`Total Master Data Rows: ${masterData.length}`);
+        
+        if(masterData.length > 0) {
+            finishInit(true);
+        } else {
+            loadingEl.innerHTML = '<span style="color:#ef4444">هیچ داده معتبری در شیت‌ها یافت نشد.</span>';
         }
     }
 
-    function populateSubFilters(data) {
-        const uniqueLists = [...new Set(data.map(d => d.list).filter(Boolean))];
-        const uniqueWork = [...new Set(data.map(d => `${d.workYear} ${d.workQuarter}`).filter(Boolean))];
-        const uniqueBase = [...new Set(data.map(d => `${d.baseYear} ${d.baseQuarter}`).filter(Boolean))];
-        const uniqueChapters = [...new Set(data.map(d => `فصل ${d.chapterNum}: ${d.chapterDesc}`).filter(Boolean))];
+    function finishInit(isSuccess) {
+        const loadingEl = document.getElementById('adjLoading');
+        if(loadingEl) loadingEl.style.display = 'none';
 
-        fillSelect('adjFilterList', uniqueLists);
-        fillSelect('adjFilterWork', uniqueWork);
-        fillSelect('adjFilterBase', uniqueBase);
-        fillSelect('adjFilterChapter', uniqueChapters);
+        // پر کردن لیست کشویی اول با نام شیت‌هایی که داده دارند
+        const uniqueSheets = [...new Set(masterData.map(d => d.sheetName))].sort();
+        populateSelect('adjFilterSheet', uniqueSheets, '-- انتخاب بخش --');
+        
+        // رویداد تغییر شیت
+        document.getElementById('adjFilterSheet').addEventListener('change', onSheetChange);
+
+        // نمایش بخش‌ها
+        document.getElementById('adjKpis').style.display = 'grid';
+        document.getElementById('adjChartSection').style.display = 'grid';
+        
+        // اجرای اولیه محاسبه (همه موارد)
+        calculateAdjustment();
     }
 
-    function fillSelect(elementId, options) {
-        const select = document.getElementById(elementId);
-        if(!select) return;
-        select.innerHTML = '<option value="all">همه موارد</option>';
+    function onSheetChange() {
+        // وقتی شیت عوض شد، فیلترهای زیرمجموعه را آپدیت کن
+        const selectedSheet = document.getElementById('adjFilterSheet').value;
+        const filteredBySheet = selectedSheet === 'all' ? masterData : masterData.filter(d => d.sheetName === selectedSheet);
+        
+        const lists = [...new Set(filteredBySheet.map(d => d.list).filter(Boolean))];
+        const works = [...new Set(filteredBySheet.map(d => `${d.workYear} ${d.workQuarter}`).filter(Boolean))];
+        const bases = [...new Set(filteredBySheet.map(d => `${d.baseYear} ${d.baseQuarter}`).filter(Boolean))];
+        const chapters = [...new Set(filteredBySheet.map(d => `فصل ${d.chapterNum}: ${d.chapterDesc}`).filter(Boolean))];
+
+        populateSelect('adjFilterList', lists, 'همه');
+        populateSelect('adjFilterWork', works, 'همه');
+        populateSelect('adjFilterBase', bases, 'همه');
+        populateSelect('adjFilterChapter', chapters, 'همه');
+
+        calculateAdjustment();
+    }
+
+    function populateSelect(id, options, defaultLabel) {
+        const el = document.getElementById(id);
+        if(!el) return;
+        el.innerHTML = `<option value="all">${defaultLabel}</option>`;
         options.forEach(opt => {
-            const option = document.createElement('option');
-            option.value = opt;
-            option.textContent = opt;
-            select.appendChild(option);
+            const o = document.createElement('option');
+            o.value = opt;
+            o.textContent = opt;
+            el.appendChild(o);
         });
     }
 
     function calculateAdjustment() {
-        if (currentSheetData.length === 0) return;
-
+        const sheetVal = document.getElementById('adjFilterSheet')?.value || 'all';
         const listVal = document.getElementById('adjFilterList')?.value || 'all';
         const workVal = document.getElementById('adjFilterWork')?.value || 'all';
         const baseVal = document.getElementById('adjFilterBase')?.value || 'all';
-        const chapterVal = document.getElementById('adjFilterChapter')?.value || 'all';
+        const chapVal = document.getElementById('adjFilterChapter')?.value || 'all';
 
-        const filteredData = currentSheetData.filter(row => {
-            const matchList = listVal === 'all' || row.list === listVal;
-            const matchWork = workVal === 'all' || `${row.workYear} ${row.workQuarter}` === workVal;
-            const matchBase = baseVal === 'all' || `${row.baseYear} ${row.baseQuarter}` === baseVal;
-            const matchChapter = chapterVal === 'all' || `فصل ${row.chapterNum}: ${row.chapterDesc}` === chapterVal;
-            return matchList && matchWork && matchBase && matchChapter;
+        const result = masterData.filter(row => {
+            const mSheet = sheetVal === 'all' || row.sheetName === sheetVal;
+            const mList = listVal === 'all' || row.list === listVal;
+            const mWork = workVal === 'all' || `${row.workYear} ${row.workQuarter}` === workVal;
+            const mBase = baseVal === 'all' || `${row.baseYear} ${row.baseQuarter}` === baseVal;
+            const mChap = chapVal === 'all' || `فصل ${row.chapterNum}: ${row.chapterDesc}` === chapVal;
+            return mSheet && mList && mWork && mBase && mChap;
         });
 
-        if (filteredData.length > 0) {
-            const data = filteredData[0];
+        if(result.length > 0) {
+            const data = result[0]; // گرفتن اولین مورد منطبق
             const percent = data.adjCoeff > 0 ? (data.adjCoeff - 1) * 100 : 0;
 
             setText('adjValB', data.B.toLocaleString('fa-IR'));
@@ -280,18 +257,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const analysisEl = document.getElementById('adjAnalysis');
             if(analysisEl) {
                 analysisEl.innerHTML = `
-                    <strong style="color:#ffb700">${document.getElementById('adjFilterSheet').value}</strong> :: 
-                    شاخص <strong>${data.chapterDesc}</strong> در دوره <strong>${data.workYear} ${data.workQuarter}</strong> 
-                    نسبت به مبنای <strong>${data.baseYear} ${data.baseQuarter}</strong>، ضریب تعدیل <strong style="color:#ff6b00">${data.adjCoeff.toFixed(3)}</strong> دارد.
-                    <br>💰 مبلغ تعدیل: <strong>${data.adjRial.toLocaleString('fa-IR')} ریال</strong>
+                    <div style="margin-bottom:8px;"><i class="fas fa-layer-group"></i> <strong style="color:#ffb700">${data.sheetName}</strong></div>
+                    <div><i class="fas fa-book-open"></i> <strong>${data.chapterDesc}</strong> (${data.chapterNum})</div>
+                    <div style="margin-top:8px;">ضریب تعدیل: <strong style="color:#ff6b00;font-size:1.1rem">${data.adjCoeff.toFixed(3)}</strong></div>
+                    <div>مبلغ تعدیل: <strong style="color:#22c55e">${data.adjRial.toLocaleString('fa-IR')} ریال</strong></div>
                 `;
             }
-
             updateAdjChart(data.B, data.A);
         } else {
             clearCalcUI();
-            const analysisEl = document.getElementById('adjAnalysis');
-            if(analysisEl) analysisEl.innerText = 'داده‌ای با این ترکیب یافت نشد.';
         }
     }
 
@@ -301,20 +275,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function clearCalcUI() {
-        ['adjValB','adjValA','adjValCoeff','adjValPercent','adjValAmount','adjValRial'].forEach(id => {
-            setText(id, '-');
-        });
+        ['adjValB','adjValA','adjValCoeff','adjValPercent','adjValAmount','adjValRial'].forEach(id => setText(id, '-'));
+        const a = document.getElementById('adjAnalysis');
+        if(a) a.innerText = 'داده‌ای یافت نشد.';
     }
 
     function updateAdjChart(b, a) {
         const canvasEl = document.getElementById('adjChart');
         if (!canvasEl || canvasEl.tagName.toLowerCase() !== 'canvas') return;
-
         const ctx = canvasEl.getContext('2d');
         if (adjChartInstance) adjChartInstance.destroy();
 
         Chart.defaults.color = '#94a3b8';
-        Chart.defaults.borderColor = 'rgba(255,255,255,0.1)';
         Chart.defaults.font.family = 'Vazirmatn';
 
         adjChartInstance = new Chart(ctx, {
@@ -330,31 +302,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: '#1a1a1a',
-                        titleColor: '#ffb700',
-                        bodyColor: '#fff',
-                        borderColor: 'rgba(255,107,0,0.3)',
-                        borderWidth: 1,
-                        callbacks: {
-                            label: function(context) {
-                                return context.parsed.y.toLocaleString('fa-IR');
-                            }
-                        }
-                    }
-                },
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
                 scales: {
                     y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    x: { grid: { display: false }, ticks: { font: { weight: 'bold' } } }
+                    x: { grid: { display: false } }
                 }
             }
         });
     }
 
-    // شروع برنامه
-    fetchSheetNames();
+    // شروع فرآیند
+    initCalculator();
 });
