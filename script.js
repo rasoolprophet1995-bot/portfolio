@@ -68,7 +68,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // ==========================================
     // 4. Safe Chart Initialization (Main Dashboard)
     // ==========================================
-    // چک می‌کند آیا عنصر Canvas وجود دارد تا خطا ندهد
     const chartSContainer = document.getElementById('chart-s');
     if(chartSContainer && chartSContainer.tagName.toLowerCase() === 'canvas') {
         try {
@@ -108,44 +107,91 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ==========================================
-    // 5. SMART ADJUSTMENT CALCULATOR (Robust Version)
+    // 5. MULTI-SHEET ADJUSTMENT CALCULATOR
     // ==========================================
-    const ADJ_SHEET_ID = '1JSejA-6Re0AeyQAu6vg_uw-PqhxOLltM6HNMkfQFnDQ';
-    const ADJ_SHEET_URL = `https://docs.google.com/spreadsheets/d/${ADJ_SHEET_ID}/gviz/tq?tqx=out:json`;
-
-    let adjSheetData = [];
+    const SHEET_ID = '1JSejA-6Re0AeyQAu6vg_uw-PqhxOLltM6HNMkfQFnDQ';
+    let availableSheets = []; // لیست نام شیت‌ها
+    let currentSheetData = []; // داده‌های شیت فعلی
     let adjChartInstance = null;
 
-    // داده‌های نمونه (Fallback) - دقیقاً مطابق ساختار شیت شما
-    const dummyData = [
-        {
-            list: 'ابنیه', workYear: '1404', workQuarter: 'اول',
-            baseYear: '99', baseQuarter: 'اول', chapterNum: '29', chapterDesc: 'کارهای دستمزدی',
-            B: 1823.6, A: 11216.8, adjCoeff: 6.151, workAmount: 1000000000, adjRial: 5151000000
-        },
-        {
-            list: 'ابنیه', workYear: '1404', workQuarter: 'دوم',
-            baseYear: '99', baseQuarter: 'اول', chapterNum: '12', chapterDesc: 'عملیات خاکی',
-            B: 2100.5, A: 9800.4, adjCoeff: 4.665, workAmount: 500000000, adjRial: 1832500000
-        }
-    ];
+    // تابع کمکی برای تبدیل نام فارسی شیت به URL Encoded
+    function encodeSheetName(name) {
+        return encodeURIComponent(name.trim());
+    }
 
-    async function fetchAdjData() {
-        console.log("Attempting to fetch live data...");
+    // ۱. دریافت لیست شیت‌ها
+    async function fetchSheetNames() {
+        const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
         try {
-            const response = await fetch(ADJ_SHEET_URL);
+            const response = await fetch(url);
+            const text = await response.text();
+            const jsonString = text.substring(47).slice(0, -2);
+            const json = JSON.parse(jsonString);
+            
+            // معمولاً gviz فقط یک شیت را برمی‌گرداند مگر اینکه مشخص شود.
+            // اما ما می‌دانیم شیت‌ها چه نام‌هایی دارند. 
+            // برای اطمینان، اگر API نتوانست همه را بگیرد، از لیست دستی استفاده می‌کنیم.
+            
+            // لیست دستی شیت‌ها طبق گفته کاربر (برای اطمینان از پوشش کامل)
+            const manualSheetList = [
+                "ابنیه", "مکانیک", "برق", "مرمت", "راه", "راهداری", "تعمیر", 
+                "انتقال اب", "شبکه توزیع", "چاه", "زهکشی", "سد سازی", "تحت فشار", 
+                "فاضلاب", "توزیع اب روستایی", "قنات", "اب خیزداری", "خطوط زمینی", 
+                "خطوط هوایی", "پست های انتقال", "تعمیر شبکه فوق توزیع", "توزیع نیروی برق", 
+                "حفاری", "پسماند", "تاسیسات آب شرب", "تجهیزات آب و فاضلاب", 
+                "نگهداشت تجهیزات برقی فاضلاب", "نگهداری شبکه فاضلاب"
+            ];
+
+            populateSheetDropdown(manualSheetList);
+            document.getElementById('adjLoading').innerText = "یک بخش تخصصی را انتخاب کنید.";
+
+        } catch (error) {
+            console.error("Error fetching sheets:", error);
+            // Fallback به لیست دستی در صورت خطا
+            const manualSheetList = ["ابنیه", "مکانیک", "برق"]; 
+            populateSheetDropdown(manualSheetList);
+        }
+    }
+
+    function populateSheetDropdown(sheets) {
+        const select = document.getElementById('adjFilterSheet');
+        select.innerHTML = '<option value="">-- انتخاب شیت --</option>';
+        sheets.forEach(sheet => {
+            const option = document.createElement('option');
+            option.value = sheet;
+            option.textContent = sheet;
+            select.appendChild(option);
+        });
+    }
+
+    // ۲. لود کردن داده‌های یک شیت خاص
+    window.loadSpecificSheet = async function() {
+        const selectedSheet = document.getElementById('adjFilterSheet').value;
+        if (!selectedSheet) return;
+
+        const loadingEl = document.getElementById('adjLoading');
+        loadingEl.innerText = `در حال بارگذاری داده‌های "${selectedSheet}"...`;
+        loadingEl.style.display = 'block';
+        
+        // مخفی کردن KPIs و نمودار تا داده جدید بیاید
+        document.getElementById('adjKpis').style.display = 'none';
+        document.getElementById('adjChartSection').style.display = 'none';
+
+        const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeSheetName(selectedSheet)}&tqx=out:json`;
+
+        try {
+            const response = await fetch(url);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             
             const text = await response.text();
-            // حذف پیشوند و پسوند اضافی گوگل
             const jsonString = text.substring(47).slice(0, -2);
             const json = JSON.parse(jsonString);
             
             if (!json.table.rows || json.table.rows.length === 0) {
-                 throw new Error("No rows found in sheet");
+                 throw new Error("ردیفی در این شیت یافت نشد.");
             }
 
-            adjSheetData = json.table.rows.map(row => {
+            currentSheetData = json.table.rows.map(row => {
                 const c = row.c;
                 return {
                     list: c[1]?.v || '',           // B: فهرست
@@ -161,53 +207,38 @@ document.addEventListener('DOMContentLoaded', function() {
                     workAmount: parseFloat(c[13]?.v) || 0, // N: مبلغ کارکرد
                     adjRial: parseFloat(c[14]?.v) || 0     // O: مبلغ تعدیل
                 };
-            }).filter(item => item.list !== ''); // حذف ردیف‌های خالی
+            }).filter(item => item.list !== ''); 
 
-            console.log("Live data loaded successfully.");
-            initCalculator(true); // true یعنی دیتای لایو
+            console.log(`Loaded ${currentSheetData.length} rows from sheet: ${selectedSheet}`);
+            
+            // پر کردن فیلترهای دیگر بر اساس داده‌های این شیت
+            populateSubFilters(currentSheetData);
+            
+            loadingEl.style.display = 'none';
+            document.getElementById('adjKpis').style.display = 'grid';
+            document.getElementById('adjChartSection').style.display = 'grid';
+            
+            calculateAdjustment();
 
         } catch (error) {
-            console.warn("Connection failed or blocked by browser security (Local File). Using Dummy Data.", error.message);
-            adjSheetData = dummyData;
-            initCalculator(false); // false یعنی دیتای نمونه
+            console.error("Error loading specific sheet:", error);
+            loadingEl.innerHTML = `<span style="color:#ef4444">خطا در خواندن شیت "${selectedSheet}".<br>${error.message}</span>`;
         }
     }
 
-    function initCalculator(isLive) {
-        populateAdjDropdowns();
-        
-        const loadingEl = document.getElementById('adjLoading');
-        if(loadingEl) {
-            if(!isLive) {
-                loadingEl.innerHTML = '<span style="color:#ffb700; font-size:0.9rem;">⚠️ حالت آفلاین (نمونه): برای دیدن داده‌های واقعی، فایل را روی هاست آپلود کنید.</span>';
-                loadingEl.style.display = 'block';
-            } else {
-                loadingEl.style.display = 'none';
-            }
-        }
+    function populateSubFilters(data) {
+        const uniqueLists = [...new Set(data.map(d => d.list).filter(Boolean))];
+        const uniqueWork = [...new Set(data.map(d => `${d.workYear} ${d.workQuarter}`).filter(Boolean))];
+        const uniqueBase = [...new Set(data.map(d => `${d.baseYear} ${d.baseQuarter}`).filter(Boolean))];
+        const uniqueChapters = [...new Set(data.map(d => `فصل ${d.chapterNum}: ${d.chapterDesc}`).filter(Boolean))];
 
-        const kpisSection = document.getElementById('adjKpis');
-        const chartSection = document.getElementById('adjChartSection');
-        
-        if(kpisSection) kpisSection.style.display = 'grid';
-        if(chartSection) chartSection.style.display = 'grid';
-        
-        calculateAdjustment();
+        fillSelect('adjFilterList', uniqueLists);
+        fillSelect('adjFilterWork', uniqueWork);
+        fillSelect('adjFilterBase', uniqueBase);
+        fillSelect('adjFilterChapter', uniqueChapters);
     }
 
-    function populateAdjDropdowns() {
-        const uniqueLists = [...new Set(adjSheetData.map(d => d.list).filter(Boolean))];
-        const uniqueWork = [...new Set(adjSheetData.map(d => `${d.workYear} ${d.workQuarter}`).filter(Boolean))];
-        const uniqueBase = [...new Set(adjSheetData.map(d => `${d.baseYear} ${d.baseQuarter}`).filter(Boolean))];
-        const uniqueChapters = [...new Set(adjSheetData.map(d => `فصل ${d.chapterNum}: ${d.chapterDesc}`).filter(Boolean))];
-
-        fillAdjSelect('adjFilterList', uniqueLists);
-        fillAdjSelect('adjFilterWork', uniqueWork);
-        fillAdjSelect('adjFilterBase', uniqueBase);
-        fillAdjSelect('adjFilterChapter', uniqueChapters);
-    }
-
-    function fillAdjSelect(elementId, options) {
+    function fillSelect(elementId, options) {
         const select = document.getElementById(elementId);
         if(!select) return;
         select.innerHTML = '<option value="all">همه موارد</option>';
@@ -220,12 +251,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function calculateAdjustment() {
+        if (currentSheetData.length === 0) return;
+
         const listVal = document.getElementById('adjFilterList')?.value || 'all';
         const workVal = document.getElementById('adjFilterWork')?.value || 'all';
         const baseVal = document.getElementById('adjFilterBase')?.value || 'all';
         const chapterVal = document.getElementById('adjFilterChapter')?.value || 'all';
 
-        const filteredData = adjSheetData.filter(row => {
+        const filteredData = currentSheetData.filter(row => {
             const matchList = listVal === 'all' || row.list === listVal;
             const matchWork = workVal === 'all' || `${row.workYear} ${row.workQuarter}` === workVal;
             const matchBase = baseVal === 'all' || `${row.baseYear} ${row.baseQuarter}` === baseVal;
@@ -247,9 +280,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const analysisEl = document.getElementById('adjAnalysis');
             if(analysisEl) {
                 analysisEl.innerHTML = `
-                    بر اساس انتخاب شما، شاخص <strong style="color:#ffb700">${data.chapterDesc}</strong> در دوره کارکرد <strong>${data.workYear} ${data.workQuarter}</strong> 
-                    نسبت به مبنای <strong>${data.baseYear} ${data.baseQuarter}</strong>، ضریب تعدیل <strong style="color:#ff6b00">${data.adjCoeff.toFixed(3).toLocaleString('fa-IR')}</strong> دارد.
-                    <br><br>💰 <strong>تحلیل ریالی:</strong> مبلغ کارکرد <strong>${data.workAmount.toLocaleString('fa-IR')}</strong> ریال و مبلغ تعدیل <strong>${data.adjRial.toLocaleString('fa-IR')}</strong> ریال محاسبه شده است.
+                    <strong style="color:#ffb700">${document.getElementById('adjFilterSheet').value}</strong> :: 
+                    شاخص <strong>${data.chapterDesc}</strong> در دوره <strong>${data.workYear} ${data.workQuarter}</strong> 
+                    نسبت به مبنای <strong>${data.baseYear} ${data.baseQuarter}</strong>، ضریب تعدیل <strong style="color:#ff6b00">${data.adjCoeff.toFixed(3)}</strong> دارد.
+                    <br>💰 مبلغ تعدیل: <strong>${data.adjRial.toLocaleString('fa-IR')} ریال</strong>
                 `;
             }
 
@@ -257,7 +291,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             clearCalcUI();
             const analysisEl = document.getElementById('adjAnalysis');
-            if(analysisEl) analysisEl.innerText = 'داده‌ای یافت نشد. لطفاً فیلترها را تغییر دهید.';
+            if(analysisEl) analysisEl.innerText = 'داده‌ای با این ترکیب یافت نشد.';
         }
     }
 
@@ -274,10 +308,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateAdjChart(b, a) {
         const canvasEl = document.getElementById('adjChart');
-        if (!canvasEl || canvasEl.tagName.toLowerCase() !== 'canvas') {
-            console.error("Canvas element #adjChart not found or invalid.");
-            return;
-        }
+        if (!canvasEl || canvasEl.tagName.toLowerCase() !== 'canvas') return;
 
         const ctx = canvasEl.getContext('2d');
         if (adjChartInstance) adjChartInstance.destroy();
@@ -325,5 +356,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // شروع برنامه
-    fetchAdjData();
+    fetchSheetNames();
 });
