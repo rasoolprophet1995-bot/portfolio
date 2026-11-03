@@ -53,7 +53,7 @@
       </ul>
       <div class="board__cta">
         <a class="btn btn--solid" href="#dashboard">ورود به داشبورد تحلیلی <span>←</span></a>
-        <a class="btn btn--line" href="tel:+989103878714" dir="ltr">۰۹۱۰ ۳۸۷ ۸۷۱۴</a>
+        <a class="btn btn--line" href="tel:+989103878714" dir="ltr">۰۹۱۰ ۳۸۷ ۸۷۱</a>
       </div>
     </div>
     <aside class="panel panel--live">
@@ -88,7 +88,7 @@
         <div><dt>عنوان شغلی</dt><dd>سرپرست برنامه‌ریزی و کنترل پروژه</dd></div>
         <div><dt>محل فعالیت</dt><dd>بوشهر، سیراف</dd></div>
         <div><dt>ایمیل</dt><dd><span dir="ltr">rasoolsalahshouri728@gmail.com</span></dd></div>
-        <div><dt>تماس</dt><dd><span dir="ltr">۰۹۱۰ ۳۸۷ ۸۷۱۴</span></dd></div>
+        <div><dt>تماس</dt><dd><span dir="ltr">۰۹۱۰ ۳۸۷ ۸۷۱</span></dd></div>
       </dl>
     </div>
     <div class="about__body">
@@ -130,7 +130,7 @@
         <div class="kpi"><span class="kpi__label">پیشرفت فیزیکی</span><b class="kpi__val">۶۵٪</b></div>
         <div class="kpi"><span class="kpi__label">SPI</span><b class="kpi__val">۱.۰۲</b></div>
         <div class="kpi"><span class="kpi__label">CPI</span><b class="kpi__val">۰.۹۸</b></div>
-        <div class="kpi kpi--accent"><span class="kpi__label">VAC</span><b class="kpi__val">+۱۲ م.ر</b></div>
+        <div class="kpi kpi--accent"><span class="kpi__label">VAC</span><b class="kpi__val">+۱۲۰ م.ر</b></div>
     </div>
 
     <div class="grid2">
@@ -152,29 +152,36 @@
     <article class="card card--full" style="margin-top: 2rem; border: 1px solid rgba(255,107,0,0.2); background: #1a1a1a;">
       <div class="card__hd">
         <h3><i class="fas fa-calculator" style="color: #ff6b00; margin-left: 8px;"></i> ماشین‌حساب هوشمند ضریب تعدیل</h3>
-        <span class="card__note">متصل زنده به گوگل شیت</span>
+        <span class="card__note">متصل زنده به گوگل شیت (چند شیتی)</span>
       </div>
       
       <div class="calc-filters">
+        <!-- فیلتر جدید: انتخاب شیت -->
+        <div>
+          <label>۰. بخش تخصصی (شیت)</label>
+          <select id="adjFilterSheet" class="calc-select" onchange="loadSpecificSheet()">
+            <option value="">در حال بارگذاری شیت‌ها...</option>
+          </select>
+        </div>
         <div>
           <label>۱. فهرست بها</label>
-          <select id="adjFilterList" class="calc-select"><option>در حال بارگذاری...</option></select>
+          <select id="adjFilterList" class="calc-select"><option>ابتدا شیت را انتخاب کنید</option></select>
         </div>
         <div>
           <label>۲. دوره کارکرد</label>
-          <select id="adjFilterWork" class="calc-select"><option>در حال بارگذاری...</option></select>
+          <select id="adjFilterWork" class="calc-select"><option>ابتدا شیت را انتخاب کنید</option></select>
         </div>
         <div>
           <label>۳. دوره شاخص مبنا</label>
-          <select id="adjFilterBase" class="calc-select"><option>در حال بارگذاری...</option></select>
+          <select id="adjFilterBase" class="calc-select"><option>ابتدا شیت را انتخاب کنید</option></select>
         </div>
         <div>
           <label>۴. فصل / رشته</label>
-          <select id="adjFilterChapter" class="calc-select"><option>در حال بارگذاری...</option></select>
+          <select id="adjFilterChapter" class="calc-select"><option>ابتدا شیت را انتخاب کنید</option></select>
         </div>
       </div>
 
-      <div id="adjLoading" class="loading-msg">در حال دریافت داده‌ها از گوگل شیت...</div>
+      <div id="adjLoading" class="loading-msg">لطفاً یک بخش تخصصی را از لیست بالا انتخاب کنید.</div>
 
       <div class="kpis" id="adjKpis" style="display: none; margin-top: 20px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));">
         <div class="kpi">
@@ -296,7 +303,7 @@
     </header>
     <ol class="tl">
       <li class="tl__item">
-        <div class="tl__yr"><b>۱۴۲</b><span>تا اکنون</span></div>
+        <div class="tl__yr"><b>۱۴۰۲</b><span>تا اکنون</span></div>
         <div class="tl__body">
           <h3>سرپرست واحد برنامه‌ریزی و کنترل پروژه</h3>
           <p class="tl__org">شرکت توسعه پالایشی پیشگامان سیراف | بوشهر</p>
